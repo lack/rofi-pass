@@ -6,7 +6,7 @@ basecommand="$0"
 
 # set default settings
 _rofi () {
-	rofi -no-auto-select -i "$@"
+	/home/jramsay/src/personal/rofi/build/rofi -no-auto-select -i "$@"
 }
 
 _pwgen () {
@@ -18,19 +18,19 @@ _image_viewer () {
 }
 
 _clip_in_primary() {
-	xclip
+	wl-copy -p
 }
 
 _clip_in_clipboard() {
-	xclip -selection clipboard
+	wl-copy
 }
 
 _clip_out_primary() {
-	xclip -o
+	wl-paste -p
 }
 
 _clip_out_clipboard() {
-	xclip --selection clipboard -o
+	wl-paste
 }
 
 
@@ -118,19 +118,19 @@ autopass () {
 	printf '%s\n' "${root}: $selected_password" > "$cache_dir/rofi-pass/last_used"
 	for word in ${stuff["$AUTOTYPE_field"]}; do
 		case "$word" in
-			":tab") xdotool key Tab;;
-			":space") xdotool key space;;
+			":tab") wtype -k Tab;;
+			":space") wtype -k space;;
 			":delay") sleep "${delay}";;
-			":enter") xdotool key Return;;
-			":otp") printf '%s' "$(generateOTP)" | xdotool type --delay ${xdotool_delay} --clearmodifiers --file -;;
-			"pass") printf '%s' "${password}" | xdotool type --delay ${xdotool_delay} --clearmodifiers --file -;;
-			"path") printf '%s' "${selected_password}" | rev | cut -d'/' -f1 | rev | xdotool type --clearmodifiers --file -;;
-			*) printf '%s' "${stuff[${word}]}" | xdotool type --delay ${xdotool_delay} --clearmodifiers --file -;;
+			":enter") wtype -k Return;;
+			":otp") printf '%s' "$(generateOTP)" | wtype -d ${xdotool_delay} -;;
+			"pass") printf '%s' "${password}" | wtype -d ${xdotool_delay} -;;
+			"path") printf '%s' "${selected_password}" | rev | cut -d'/' -f1 | rev | wtype -;;
+			*) printf '%s' "${stuff[${word}]}" | wtype -d ${xdotool_delay} -;;
 		esac
 	done
 
 	if [[ ${auto_enter} == "true" ]]; then
-		xdotool key Return
+		wtype -k Return
 	fi
 
 	xset r "$x_repeat_enabled"
@@ -177,7 +177,7 @@ typeUser () {
 	x_repeat_enabled=$(xset q | awk '/auto repeat:/ {print $3}')
 	xset r off
 
-	printf '%s' "${stuff[${USERNAME_field}]}" | xdotool type --delay ${xdotool_delay} --clearmodifiers --file -
+	printf '%s' "${stuff[${USERNAME_field}]}" | wtype -d ${xdotool_delay} -
 
 	xset r "$x_repeat_enabled"
 	unset x_repeat_enabled
@@ -191,7 +191,7 @@ typePass () {
 	x_repeat_enabled=$(xset q | awk '/auto repeat:/ {print $3}')
 	xset r off
 
-	printf '%s' "${password}" | xdotool type --delay ${xdotool_delay} --clearmodifiers --file -
+	printf '%s' "${password}" | wtype -d ${xdotool_delay} -
 
 	if [[ $notify == "true" ]]; then
 		if [[ "${stuff[notify]}" == "false" ]]; then
@@ -224,7 +224,7 @@ typeField () {
 		*) to_type="${stuff[${typefield}]}" ;;
 	esac
 
-	printf '%s' "$to_type" | xdotool type --delay ${xdotool_delay} --clearmodifiers --file -
+	printf '%s' "$to_type" | wtype -d ${xdotool_delay} -
 
 	xset r "$x_repeat_enabled"
 	unset x_repeat_enabled
